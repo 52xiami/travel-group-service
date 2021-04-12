@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "traveplan-travelgroup-service",
+  "private_key_id": "7a06281339e4d672d6d471a9d44421c4e82c6460",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC/HpRT2WW/glnt\ndWaH5lG3IaJ2ER1CWl/5uGYc3nPscYGcseSIJgHJ9omX6UVq+2yC0OW3rLjSopQ/\n0losOytpJm/AlC0ImE4JbpqsUoD1gLpimt9ZQURsT2F8s1+qrUwwlJV0uVhMARi7\nJmOxUm0BxHXVBpB/8YknUituEbdSLzYJ2ukeLarSyHbbUkdBRPv76U05byYRrc96\nhUmx1xhYuLVeazpYb+hRRcHL/OfU368U81yhLKKYWPsdide6nxTSslMooVOAjM0s\nVlsnJhdDwt+llYQfAOIGoPXIwBQonkNCCIOSDi/Zkuhi1a6+OXOns3SJHY3h4qnw\nBRhN3dXXAgMBAAECggEAOvzRtBWHyXWOkvNmy3AjbX30mjNLEBU7xSQMZEGmjuYz\npmzjh8APUkoFCr2FXvEt+yxFkoy9WMm0LwSaL0et7NzfphU11w7HGzMniyNFyUBL\nhq6dW/uAhltzz9y/HLszJlVd0bJ5FbBK9UxyfaLeoSqFYdQOWmbuuZOrcuQF7Fe8\nOP1peCYxDZ6BBh2sWd0yhkoc2NVs4ZLLDZYbflvMTK/kZJwE7TuRJbUhW1mD0BMJ\niVyov64gsJ3zg4fwVzmxmIhwLxX9PN0vSP5OPkZoKiaF7UNxrlsFAkXIWZGd6xIY\nlPR4487rndpQ2bwXKANKvIPsXKCl3Sh2sJ4HhfdTfQKBgQDp8kH5QGWatvF8p49p\nkOyJpY/yFlk/V6SU5/CNe1RSgVWN/QirJsvNLHENtogVy3o123MCMQMTEkNRqTPG\nSsLALZv1JjoYO2v4EtoaT28hpHSdzfZ6F5Fz1Tx3YdVlUDr8m5nFmgC+EVFWDcxE\nWT4bSH5sVKdiHN1V1XU3b2yo2wKBgQDRIsvaTLdI57V0viVpoexfLrvhq+GXVdx+\nkzL4/nW6kKTbTHJah2k87PnsjiiY8BewKM/ZzEFs3LNkeRH2Fc5izdofKmAJ7q0D\n379TyabktO63PgxWYQ50jITHG0QECxgSZibiD3f1aGzsG21f1ohOFCLG+zy5ryjh\nmoMEoOxJtQKBgQDSj7MFjgplCAet9HpFv6TF9vfqImdNdaqyQ1flX31zjOjeFUJ6\nGT8RedB/USyGwU9LriqDbG2h+qwQkcQB00QaCHL4YOGk8capzv3y9E/H7ebwKXKQ\nTSojIWd849dXirCsr7flfEjyyU91rpGNau1VTRhMlJza17P3D1qi/GzGRQKBgC3O\nIzvy5YnwRgwFwYf7URwfzkLFNKnCwoJulxF2Gi78kz785WbylZgkhzDKihXFMEsD\nBVM8q2++fwQYiFiPuh5l28pLq7FBN1/L18nwNr+M6WP1ERqyM0pPpJ0/WYxRKbqN\n6SJGJQ35CzJDZ5dAE6aWPm+6gzhgJuISx3NyE46pAoGBANC5nvDeBQ/gmrKFuwnW\nLf/f+bar6I8JZyJOk1gqvNYky8Owoc5naw33ujsiejsJTi+giuf3JIdSIEdTpTrA\nJkj9Kk8gKWY6tHrCAFNHif9Cu4vZ25+8NGrK0Ia5l9l0FAjKRhAaGGWbP/wiFaNs\ncEZWXqm+ttAlc9Qy4qa4p6v9\n-----END PRIVATE KEY-----\n",
+  "client_email": "travel-platform-storage@traveplan-travelgroup-service.iam.gserviceaccount.com",
+  "client_id": "113459412511948534677",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/travel-platform-storage%40traveplan-travelgroup-service.iam.gserviceaccount.com"
+}

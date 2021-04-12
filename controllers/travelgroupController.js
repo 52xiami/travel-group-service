@@ -5,6 +5,8 @@ const User = require("../models/User");
 const mongoose = require("mongoose");
 const path = require("path");
 const fs = require("fs");
+const { Storage } = require("@google-cloud/storage");
+const { GcsFileUpload } = require("gcs-file-upload");
 
 //@desc Get all travelgroups
 //@route GET /api/v1/travelgroup/read
@@ -28,13 +30,6 @@ exports.getAllTravelgroups = asyncHandler(async (req, res, next) => {
 exports.getSingleTravelgroup = asyncHandler(async (req, res, next) => {
   const travelgroup = await Travelgroup.findById(req.params.id);
   if (!travelgroup) {
-    // res.status(200)
-    //     .json(
-    //         {
-    //             success: false,
-    //             data: null,
-    //             message: `Travelgroup not found with id of ${req.params.id}`
-    //         })
     return next(
       new ErrorResponse(
         `Travelgroup not found with id of ${req.params.id}`,
@@ -49,15 +44,6 @@ exports.getSingleTravelgroup = asyncHandler(async (req, res, next) => {
 //@route GET v1/travelgroups/read/groups_in/:userId
 //@access Private
 exports.getTravelgroupsUserIdIn = asyncHandler(async (req, res, next) => {
-  //Firstly, check if userId is a valid id
-  // const user = await User.findById(req.params.userId);
-  // if (!user) {
-  //     new ErrorResponse(
-  //             `The user with Id ${req.params.userId} is not a valid userId`,
-  //             400
-  //         )
-  // }
-
   const travelgroups = await Travelgroup.find();
   console.log(travelgroups);
   if (!travelgroups || travelgroups.length == 0) {
@@ -137,15 +123,6 @@ exports.getAllTravelgroupsUserIdNotIn = asyncHandler(async (req, res, next) => {
 //@route POST v1/travelgroups/create/:userId
 //@access Private
 exports.createTravegroup = asyncHandler(async (req, res, next) => {
-  //const user = await User.findById(req.params.userId);
-  // if (!user) {
-  //     return next(
-  //         new ErrorResponse(
-  //             `The user with UserId ${req.params.userId} is not a valid userId`,
-  //             400
-  //         )
-  //     );
-  // }
   req.body.groupOwner = req.params.userId;
   // 1 indicates active
   // 0 indicates inactive
@@ -164,25 +141,6 @@ exports.addMemberToTravelgroup = asyncHandler(async (req, res, next) => {
   if (req.params.userId === req.params.memberId) {
     return next(new ErrorResponse("Duplicate userId", 400));
   }
-  // const user = await User.findById(req.params.userId);
-
-  // if (!user) {
-  //     return next(
-  //         new ErrorResponse(
-  //             `The user with Id ${req.params.userId} is not a valid userId`,
-  //             400
-  //         )
-  //     );
-  // }
-  // const member = await User.findById(req.params.memberId);
-  // if (!member) {
-  //     return next(
-  //         new ErrorResponse(
-  //             `The user with Id ${req.params.memberId} is not a valid userId`,
-  //             400
-  //         )
-  //     );
-  // }
 
   let travelgroup = await Travelgroup.findById(req.params.groupId);
   if (!travelgroup) {
@@ -195,23 +153,10 @@ exports.addMemberToTravelgroup = asyncHandler(async (req, res, next) => {
   }
 
   let isMemberIdInGroup;
-  //let isManagerOrOwner;
-  // isManagerOrOwner =
-  //   travelgroup.groupOwner.toString() === req.params.userId ||
-  //   travelgroup.groupManagers.includes(Number.parseInt(req.params.userId));
   isMemberIdInGroup =
     travelgroup.groupMembers.includes(Number.parseInt(req.params.memberId)) ||
     travelgroup.groupManagers.includes(Number.parseInt(req.params.memberId));
 
-  //firstly, check if userId is in the groupManagers or groupOwner
-  // if (!isManagerOrOwner) {
-  //   return next(
-  //     new ErrorResponse(
-  //       `The user with Id ${req.params.userId} doesn't have the authority to add members directly`,
-  //       401
-  //     )
-  //   );
-  // }
   if (isMemberIdInGroup) {
     return next(
       new ErrorResponse(
@@ -238,27 +183,6 @@ exports.downgradeManager = asyncHandler(async (req, res, next) => {
   if (req.params.userId === req.params.managerId) {
     return next(new ErrorResponse("Duplicate userId", 400));
   }
-
-  //   const user = await User.findById(req.params.userId);
-  //   if (!user) {
-  //     return next(
-  //       new ErrorResponse(
-  //         `The user with Id ${req.params.userId} is not a valid userId`,
-  //         400
-  //       )
-  //     );
-  //   }
-
-  //   const manager = await User.findById(req.params.managerId);
-  //   if (!manager) {
-  //     return next(
-  //       new ErrorResponse(
-  //         `The user with Id ${req.params.managerId} is not a valid userId`,
-  //         400
-  //       )
-  //     );
-  //   }
-
   const travelgroup = await Travelgroup.findById(req.params.groupId);
   if (!travelgroup) {
     return next(
@@ -317,27 +241,9 @@ exports.addManagerToTravelgroup = asyncHandler(async (req, res, next) => {
   if (req.params.userId === req.params.managerId) {
     return next(new ErrorResponse("Duplicate userId", 400));
   }
-  //const user = await User.findById(req.params.userId);
   let isGroupowner = false;
   let isManagerIdInMembers = false;
   let isManagerIdInManagers = false;
-  //   if (!user) {
-  //     return next(
-  //       new ErrorResponse(
-  //         `The user with Id ${req.params.userId} is not a valid userId`,
-  //         400
-  //       )
-  //     );
-  //   }
-  //   const manager = await User.findById(req.params.managerId);
-  //   if (!manager) {
-  //     return next(
-  //       new ErrorResponse(
-  //         `The user with Id ${req.params.managerId} is not a valid userId`,
-  //         400
-  //       )
-  //     );
-  //   }
 
   const travelgroup = await Travelgroup.findById(req.params.groupId);
   if (!travelgroup) {
@@ -375,7 +281,6 @@ exports.addManagerToTravelgroup = asyncHandler(async (req, res, next) => {
       )
     );
   }
-
   // If managerId is in groupMembers, remove this id from the groupMembers
   if (isManagerIdInMembers) {
     //let members = [...travelgroup.groupMembers];
@@ -384,7 +289,6 @@ exports.addManagerToTravelgroup = asyncHandler(async (req, res, next) => {
     });
     req.body.groupMembers = members;
   }
-
   //Add managerId to groupManagers
   let managers = [...travelgroup.groupManagers];
   managers.push(Number.parseInt(req.params.managerId));
@@ -409,23 +313,6 @@ exports.changeOwnership = asyncHandler(async (req, res, next) => {
   let isGroupowner = false;
   let isNewOwnerIdInMembers = false;
   let isNewOwnerIdInManagers = false;
-  //   if (!user) {
-  //     return next(
-  //       new ErrorResponse(
-  //         `The user with Id ${req.params.userId} is not a valid userId`,
-  //         400
-  //       )
-  //     );
-  //   }
-  //   const newOwner = await User.findById(req.params.newOwnerId);
-  //   if (!newOwner) {
-  //     return next(
-  //       new ErrorResponse(
-  //         `The user with Id ${req.params.newOwnerId} is not a valid userId`,
-  //         400
-  //       )
-  //     );
-  //   }
 
   const travelgroup = await Travelgroup.findById(req.params.groupId);
   if (!travelgroup) {
@@ -444,13 +331,6 @@ exports.changeOwnership = asyncHandler(async (req, res, next) => {
   isNewOwnerIdInManagers = travelgroup.groupManagers.includes(
     Number.parseInt(req.params.newOwnerId)
   );
-  console.log("Is Owner");
-  console.log(isGroupowner);
-  console.log("Is new in Manager");
-  console.log(isNewOwnerIdInManagers);
-  console.log("Is memeber");
-  console.log(isNewOwnerIdInMembers);
-
   //Check iNumber.parseInt
   if (!isGroupowner) {
     return next(
@@ -591,16 +471,6 @@ exports.deleteMember = asyncHandler(async (req, res, next) => {
 //@route DELETE v1/travelgroups/update/close/:userId/:groupId
 //@access group owner
 exports.deleteTravelgroup = asyncHandler(async (req, res, next) => {
-  // const user = await User.findById(req.params.userId);
-  // if (!user) {
-  //   return next(
-  //     new ErrorResponse(
-  //       `The user with Id ${req.params.userId} is not a valid userId`,
-  //       400
-  //     )
-  //   );
-  // }
-
   const travelgroup = await Travelgroup.findById(req.params.groupId);
   if (!travelgroup) {
     return next(
@@ -643,6 +513,29 @@ exports.suspendTravelgroup = asyncHandler(async (req, res, next) => {
 //@access Private
 
 exports.uploadImageToTravelgroup = asyncHandler(async (req, res, next) => {
+  const myBucket = new GcsFileUpload(
+    {
+      keyFilename: path.join(
+        __dirname,
+        "../traveplan-travelgroup-service-key.json"
+      ),
+      projectId: "traveplan-travelgroup-service",
+    },
+    "travel-group-service-bucket"
+  );
+  // const myFile = fs.readFileSync("public/uploads/no-image.jpg");
+  // console.log("My file");
+  // console.log(myFile);
+  const storage = new Storage({
+    keyFilename: path.join(
+      __dirname,
+      "../traveplan-travelgroup-service-key.json"
+    ),
+    projectId: "traveplan-travelgroup-service",
+  });
+
+  //storage.getBuckets().then((x) => console.log(x));
+  const bucketName = "travel-group-service-bucket";
   const travelgroup = await Travelgroup.find({
     _id: req.params.groupId,
     groupOwner: req.params.userId,
@@ -665,19 +558,12 @@ exports.uploadImageToTravelgroup = asyncHandler(async (req, res, next) => {
   console.log(imageToBeDelete);
 
   const file = req.files.file;
+  console.log("File is");
+  console.log(file);
 
   if (!file.mimetype.startsWith("image")) {
     return next(new ErrorResponse("Plese upload an image file", 400));
   }
-  //check file size
-  // if (file.size > process.env.MAX_FILE_UPLOAD) {
-  //   return next(
-  //     new ErrorResponse(
-  //       `Please upload an image less than ${process.env.MAX_FILE_UPLOAD}`,
-  //       400
-  //     )
-  //   );
-  // }
 
   file.name =
     "group" +
@@ -685,32 +571,81 @@ exports.uploadImageToTravelgroup = asyncHandler(async (req, res, next) => {
     Date.now().toString() +
     `${path.parse(file.name).ext}`;
 
-  file.mv(`${process.env.FILE_UPLOAD_PATH}/${file.name}`, async (err) => {
-    if (err) {
-      console.error(err);
-      return next(new ErrorResponse(`Problem with file upload`, 500));
-    }
+  console.log(file);
 
-    await Travelgroup.findByIdAndUpdate(req.params.groupId, {
-      groupImage: file.name,
+  const fileMetaData = {
+    originalname: file.name,
+    buffer: file.data,
+    //Content-Type: file.mimetype
+  };
+
+  //   await Travelgroup.findByIdAndUpdate(req.params.groupId, {
+  //     groupImage: file.name,
+  //   });
+
+  myBucket
+    .uploadFile(fileMetaData)
+    .then(async (data) => {
+      console.log("upload fiel data");
+      console.log(data);
+      const words = data.split("/");
+      const fileName = words[words.length - 1];
+      await Travelgroup.findByIdAndUpdate(req.params.groupId, {
+        groupImage: fileName,
+      });
+      await storage
+        .bucket(bucketName)
+        .file(fileName)
+        .setMetadata({ contentType: file.mimetype });
+      if (imageToBeDelete && imageToBeDelete !== "no-image.jpg") {
+        await storage.bucket(bucketName).file(imageToBeDelete).delete();
+        console.log(`deleted file is to ${imageToBeDelete}`);
+      }
+    })
+    .catch((err) => {
+      console.log(err);
     });
 
-    //Delete the old image
-    if (imageToBeDelete && imageToBeDelete !== "no-image.jpg") {
-      fs.unlink(
-        `${process.env.FILE_UPLOAD_PATH}/${imageToBeDelete}`,
-        (error) => {
-          if (error) {
-            console.log(error);
-          }
-        }
-      );
-    }
+  // //upload file to google cloud storage
+  // storage.bucket(bucketName).file.
 
-    res.status(200).json({
-      success: true,
-      data: file.name,
-    });
+  // await storage.bucket(bucketName).upload(uri, {
+  //   destination: file.name,
+  // });
+  // console.log(`uploaded to ${bucketName}`);
+
+  //storage.googleapis.com/travel-group-service-bucket/no-image-buckcet.jpg
+
+  // file.mv(`./public/uploads/${file.name}`, async (err) => {
+  //   if (err) {
+  //     console.error(err);
+  //     return next(new ErrorResponse(err, 500));
+  //   }
+
+  //   await Travelgroup.findByIdAndUpdate(req.params.groupId, {
+  //     groupImage: file.name,
+  //   });
+
+  //   //Delete the old image
+  //   if (imageToBeDelete && imageToBeDelete !== "no-image.jpg") {
+  //     fs.unlink(
+  //       `${process.env.FILE_UPLOAD_PATH}/${imageToBeDelete}`,
+  //       (error) => {
+  //         if (error) {
+  //           console.log(error);
+  //         }
+  //       }
+  //     );
+  //   }
+
+  //   res.status(200).json({
+  //     success: true,
+  //     data: file.name,
+  //   });
+  // });
+
+  res.status(200).json({
+    success: true,
   });
 });
 
