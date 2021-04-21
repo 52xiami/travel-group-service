@@ -81,6 +81,50 @@ exports.getTravelgroupsUserIdIn = asyncHandler(async (req, res, next) => {
   });
 });
 
+//@desc Search travelgroups by name
+//@route GET v1/travelgroups/search/:userId/:groupName
+//@access Private
+exports.searchTravelgroupsByGroupname = asyncHandler(async (req, res, next) => {
+  const travelgroups = await Travelgroup.find().sort({ createdAt: -1 });
+  if (!travelgroups) {
+    return next(new ErrorResponse("No travelgroups found", 404));
+  }
+  let isInMembers;
+  let isInManagers;
+  const travelgroupsNotIn = travelgroups.filter((tp) => {
+    if (tp.groupMembers) {
+      isInMembers = tp.groupMembers.includes(
+        Number.parseInt(req.params.userId)
+      );
+    }
+    if (tp.groupManagers) {
+      isInManagers = tp.groupManagers.includes(
+        Number.parseInt(req.params.userId)
+      );
+    }
+    return (
+      !isInManagers &&
+      !isInMembers &&
+      tp.groupOwner !== Number.parseInt(req.params.userId)
+    );
+  });
+  console.log("travel groups not in:");
+  console.log(travelgroupsNotIn);
+  if (!travelgroupsNotIn) {
+    return next(new ErrorResponse(`No travelgroups found`, 404));
+  }
+  const travelgroupsSearched = travelgroupsNotIn.filter((tp) => {
+    return tp.groupName
+      .toLowerCase()
+      .includes(req.params.groupName.toLowerCase());
+  });
+
+  if (!travelgroupsSearched) {
+    return next(new ErrorResponse(`No travelgroups found`, 404));
+  }
+  res.status(200).json({ success: true, data: travelgroupsSearched });
+});
+
 //@desc Get travelgroups that userId is not in
 //@route GET v1/travelgroups/read/groups_notin/:userId
 //@access Private

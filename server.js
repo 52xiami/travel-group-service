@@ -10,6 +10,7 @@ const travelplan = require('./routes/travelplanRoute');
 const errorHandler = require('./middleware/error');
 const fileupload = require('express-fileupload');
 
+
 // Load env variables
 dotenv.config({ path: `./config/config.env` });
 

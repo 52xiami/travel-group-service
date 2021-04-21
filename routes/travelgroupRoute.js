@@ -13,6 +13,7 @@ const {
   getTravelgroupsUserIdIn,
   uploadImageToTravelgroup,
   updateGroupInfo,
+  searchTravelgroupsByGroupname,
 } = require("../controllers/travelgroupController");
 const { route } = require("./travelplanRoute");
 
@@ -23,6 +24,7 @@ router.route("/read/:id").get(getSingleTravelgroup);
 ///read
 router.route("/read").get(getAllTravelgroups);
 router.route("/read/groups_in/:userId").get(getTravelgroupsUserIdIn);
+router.route("/search/:userId/:groupName").get(searchTravelgroupsByGroupname);
 
 router.route("/create/:userId").post(createTravegroup);
 

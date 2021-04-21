@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const travelGroupSchema = new mongoose.Schema(
   {
     groupName: {
@@ -11,6 +10,11 @@ const travelGroupSchema = new mongoose.Schema(
     groupImage: {
       type: String,
       default: "no-image.jpg",
+    },
+    groupDescription: {
+      type: String,
+      trim: true,
+      maxLength: [100, "Group description can not be more than 100 characters"],
     },
     groupMembers: {
       type: [Number],
@@ -25,8 +29,6 @@ const travelGroupSchema = new mongoose.Schema(
       type: String,
     },
     status: {
-      // 0 indicates group is suspended
-      // 1 indiccates group is active
       type: Number,
       default: 1,
     },
